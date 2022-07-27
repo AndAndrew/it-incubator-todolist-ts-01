@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 
 export type TaskType = {
     id: number
@@ -9,9 +9,25 @@ export type TaskType = {
 type PropsType = {
     title: string
     tasks: Array<TaskType>
+    removeTask: (taskID: number) => void
 }
 
 export const Todolist = (props: PropsType) => {
+    const [filter, setFilter] = useState('All')
+
+    let filteredTasks = props.tasks
+    if (filter === 'Active') {
+        filteredTasks = props.tasks.filter(el => !el.isDone)
+    }
+    if (filter === 'Completed') {
+        filteredTasks = props.tasks.filter(el => el.isDone)
+    }
+
+    const filterTask = (filterValue: string) => {
+        setFilter(filterValue)
+    }
+
+
     return (
         <div>
             <h3>{props.title}</h3>
@@ -21,15 +37,23 @@ export const Todolist = (props: PropsType) => {
             </div>
             <ul>
                 {
-                    props.tasks.map((t) => <li><input type="checkbox" checked={t.isDone}/>
-                            <span>{t.title}</span>
-                        </li>)
-                }
+                    filteredTasks.map((el, index) => {
+                        return (
+                            <li key={index}>
+                                <button onClick={() => {
+                                    props.removeTask(el.id)
+                                }}>X
+                                </button>
+                                <input type="checkbox" checked={el.isDone}/>
+                                <span>{el.title}</span>
+                            </li>
+                        )
+                    })}
             </ul>
             <div>
-                <button>All</button>
-                <button>Active</button>
-                <button>Completed</button>
+                <button onClick={()=>{filterTask('All')}}>All</button>
+                <button onClick={()=>{filterTask('Active')}}>Active</button>
+                <button onClick={()=>{filterTask('Completed')}}>Completed</button>
             </div>
         </div>
     )
